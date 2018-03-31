@@ -1,0 +1,12 @@
+{
+  "name": "magic-mirror-module-screenlogic",
+  "version": "1.0.0",
+  "description": "Show data from Pentair ScreenLogic systems",
+  "main": "MMM-ScreenLogic.js",
+  "author": "Chris Pickett",
+  "repository": "https://github.com/parnic/MMM-ScreenLogic.git",
+  "license": "MIT",
+  "dependencies": {
+    "node-screenlogic": "~1.0.1"
+  }
+}
