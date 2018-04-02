@@ -1,5 +1,4 @@
 var NodeHelper = require('node_helper');
-var lastResult = {};
 
 module.exports = NodeHelper.create({
 	start: function() {
@@ -12,7 +11,6 @@ module.exports = NodeHelper.create({
 	doUpdate: function() {
 		var self = this;
 		getPoolData(this.config, function(poolData) {
-			lastResult = poolData;
 			self.sendSocketNotification('SCREENLOGIC_RESULT', poolData);
 		});
 	},
