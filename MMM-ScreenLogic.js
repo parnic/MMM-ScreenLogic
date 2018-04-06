@@ -40,9 +40,6 @@ Module.register("MMM-ScreenLogic",{
 
 			var contents = [];
 
-			var row = document.createElement('tr');
-			table.appendChild(row);
-
 			if (this.config.showPoolTemp) {
 				var className = "";
 				if (poolData.status.currentTemp[0] <= this.config.coldTemp) {
@@ -100,13 +97,19 @@ Module.register("MMM-ScreenLogic",{
 				});
 			}
 
-			var headerRow = document.createElement('tr');
-			var contentRow = document.createElement('tr');
-			table.appendChild(headerRow);
-			table.appendChild(contentRow);
+			var headerRow = null;
+			var contentRow = null;
 
-			var cols = 0;
+			var cols = -1;
 			for (var item in contents) {
+				cols++;
+				if (cols % this.config.columns === 0) {
+					var headerRow = document.createElement('tr');
+					var contentRow = document.createElement('tr');
+					table.appendChild(headerRow);
+					table.appendChild(contentRow);
+				}
+
 				var headerCell = document.createElement('th');
 				headerCell.innerHTML = contents[item].header;
 				headerRow.appendChild(headerCell);
@@ -115,14 +118,6 @@ Module.register("MMM-ScreenLogic",{
 				contentCell.innerHTML = contents[item].data;
 				contentCell.className = contents[item].class;
 				contentRow.appendChild(contentCell);
-
-				cols++;
-				if (cols % this.config.columns === 0) {
-					headerRow = document.createElement('tr');
-					contentRow = document.createElement('tr');
-					table.appendChild(headerRow);
-					table.appendChild(contentRow);
-				}
 			}
 
 			return table;
