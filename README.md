@@ -18,6 +18,7 @@ A <a href="https://github.com/MichMich/MagicMirror">MagicMirror²</a> module use
 |`showOrp`|Boolean|Whether you'd like to show ORP level or not.|`true`|
 |`showSaltLevel`|Boolean|Whether you'd like to show salt level (in PPM) or not.|`true`|
 |`showSaturation`|Boolean|Whether you'd like to show saturation/balance or not.|`true`|
+|`showFreezeMode`|Boolean|Whether you'd like to show a banner when the pool is in freeze mode or not. [added in v1.0.1]|`true`|
 |`colored`|Boolean|Whether you'd like colored output or not.|`true`|
 |`coldTemp`|Integer|Show the temperature colored blue if it's at or below this level for pool/spa (requires option `colored`). This is in whatever scale your system is set to (Fahrenheit/Celsius).|`84`|
 |`hotTemp`|Integer|Show the temperature colored red if it's at or above this level for pool/spa (requires option `colored`). This is in whatever scale your system is set to (Fahrenheit/Celsius).|`90`|
@@ -51,3 +52,8 @@ The data is updated every 30 minutes.
 
 ## Libraries
 This uses a Node.JS library I created for interfacing with ScreenLogic controllers over the network: <a href="https://github.com/parnic/node-screenlogic">node-screenlogic</a>, so feel free to check that out for more information.
+
+## Changelog
+
+### v1.0.1
+* Added `showFreezeMode` to show a banner acrosss the top if the pool is currently in freeze-protection mode.

@@ -8,6 +8,7 @@ Module.register("MMM-ScreenLogic",{
 		showOrp: true,
 		showSaltLevel: true,
 		showSaturation: true,
+		showFreezeMode: true,
 		colored: true,
 		coldTemp: 84,
 		hotTemp: 90,
@@ -99,6 +100,16 @@ Module.register("MMM-ScreenLogic",{
 
 			var headerRow = null;
 			var contentRow = null;
+
+			if (this.config.showFreezeMode && poolData.status.freezeMode !== 0) {
+				var row = document.createElement('tr');
+				table.appendChild(row);
+				row.className = 'cold-temp';
+				var cell = document.createElement('th');
+				row.appendChild(cell);
+				cell.colSpan = this.config.columns;
+				cell.innerHTML = '<center>FREEZE MODE</center>';
+			}
 
 			var cols = -1;
 			for (var item in contents) {
