@@ -1,5 +1,5 @@
 # MMM-ScreenLogic
-A <a href="https://github.com/MichMich/MagicMirror">MagicMirror²</a> module used to connect to a local Pentair ScreenLogic pool controller system. Tested with MagicMirror² v2.2.2 server, Chrome 65 on Windows 10 and Midori 0.4.3 on a Raspberry Pi Zero W with Raspbian Jessie. Tested with a Pentair ScreenLogic system running version 5.2 Build 736.0 Rel.
+A <a href="https://github.com/MichMich/MagicMirror">MagicMirror²</a> module used to connect to a local Pentair ScreenLogic pool controller system. Tested with MagicMirror² v2.2.2, v2.3.1 servers, Chrome 65 on Windows 10 and Midori 0.4.3 on a Raspberry Pi Zero W with Raspbian Jessie. Tested with a Pentair ScreenLogic system running version 5.2 Build 736.0 Rel.
 
 ## Installation
 1. Navigate into your MagicMirror's `modules` folder and execute `git clone https://github.com/parnic/MMM-ScreenLogic.git`.
