@@ -13,7 +13,8 @@ Module.register("MMM-ScreenLogic",{
 		coldTemp: 84,
 		hotTemp: 90,
 		columns: 3,
-		contentClass: "light"
+		contentClass: "light",
+		updateInterval: 30 * 60 * 1000
 	},
 
 	start: function() {

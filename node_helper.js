@@ -2,10 +2,7 @@ var NodeHelper = require('node_helper');
 
 module.exports = NodeHelper.create({
 	start: function() {
-		var self = this;
-		setInterval(function() {
-			self.doUpdate()
-		}, 30 * 60 * 1000);
+		this.setTimer(30 * 60 * 1000);
 	},
 
 	doUpdate: function() {
@@ -15,9 +12,27 @@ module.exports = NodeHelper.create({
 		});
 	},
 
+	setTimer: function(updateInterval) {
+		var update = true;
+		update = typeof this.updateInterval === 'undefined' || this.updateInterval != updateInterval;
+		this.updateInterval = updateInterval;
+
+		if (update) {
+			if (typeof this.timer !== 'undefined') {
+				clearInterval(this.timer);
+			}
+
+			var self = this;
+			self.timer = setInterval(function() {
+				self.doUpdate()
+			}, self.updateInterval);
+		}
+	},
+
 	socketNotificationReceived: function(notification, payload) {
 		if (notification === 'SCREENLOGIC_CONFIG') {
 			this.config = payload;
+			this.setTimer(this.config.updateInterval);
 		}
 		if (notification === 'SCREENLOGIC_UPDATE') {
 			this.doUpdate();

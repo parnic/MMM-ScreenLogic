@@ -24,6 +24,7 @@ A <a href="https://github.com/MichMich/MagicMirror">MagicMirror²</a> module use
 |`hotTemp`|Integer|Show the temperature colored red if it's at or above this level for pool/spa (requires option `colored`). This is in whatever scale your system is set to (Fahrenheit/Celsius).|`90`|
 |`columns`|Integer|How many columns to use to display the data before starting a new row.|`3`|
 |`contentClass`|String|The CSS class used to display content values (beneath the header).|`"light"`|
+|`updateInterval`|Integer|How frequently, in milliseconds, to update pool data.|`30 * 60 * 1000` (every 30 minutes)|
 
 Here is an example of an entry in config.js
 ```
@@ -48,7 +49,7 @@ Pull requests are very welcome! If you'd like to see any additional functionalit
 
 This module only works with ScreenLogic controllers on the local network via either a UDP broadcast on 255.255.255.255 or a direct connection if you've specified an address and port in the configuration.
 
-The data is updated every 30 minutes.
+The data is updated every 30 minutes by default (configurable with `updateInterval`).
 
 ## Libraries
 This uses a Node.JS library I created for interfacing with ScreenLogic controllers over the network: <a href="https://github.com/parnic/node-screenlogic">node-screenlogic</a>, so feel free to check that out for more information.
@@ -57,3 +58,6 @@ This uses a Node.JS library I created for interfacing with ScreenLogic controlle
 
 ### v1.0.1
 * Added `showFreezeMode` to show a banner acrosss the top if the pool is currently in freeze-protection mode.
+
+### v1.0.2
+* Added `updateInterval` to control how often the pool data is updated (default 30 minutes).
