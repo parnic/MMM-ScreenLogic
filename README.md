@@ -61,3 +61,6 @@ This uses a Node.JS library I created for interfacing with ScreenLogic controlle
 
 ### v1.0.2
 * Added `updateInterval` to control how often the pool data is updated (default 30 minutes).
+
+### v1.0.3
+* Package newer `node-screenlogic` dependency to fix server broadcast in certain environments.
