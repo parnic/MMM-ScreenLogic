@@ -53,14 +53,3 @@ The data is updated every 30 minutes by default (configurable with `updateInterv
 
 ## Libraries
 This uses a Node.JS library I created for interfacing with ScreenLogic controllers over the network: <a href="https://github.com/parnic/node-screenlogic">node-screenlogic</a>, so feel free to check that out for more information.
-
-## Changelog
-
-### v1.0.1
-* Added `showFreezeMode` to show a banner acrosss the top if the pool is currently in freeze-protection mode.
-
-### v1.0.2
-* Added `updateInterval` to control how often the pool data is updated (default 30 minutes).
-
-### v1.0.3
-* Package newer `node-screenlogic` dependency to fix server broadcast in certain environments.
