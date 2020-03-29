@@ -24,7 +24,13 @@
 	width: 80%;
 	height: 5rem;
 	margin: auto;
-	font-weight: bold;
+    font-weight: bold;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    cursor: none;
+    outline: none;
 }
 
 .MMM-ScreenLogic button.control:after {
