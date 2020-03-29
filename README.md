@@ -12,6 +12,7 @@ A <a href="https://github.com/MichMich/MagicMirror">MagicMirror²</a> module use
 |---|---|---|---|
 |`serverAddress`|String|The IPv4 address of a ScreenLogic unit to connect to. If not set, the system will search for a unit to connect to. If set, `serverPort` must also be set.| |
 |`serverPort`|Integer|The port of a ScreenLogic unit to connect to (usually 80). If not set, the system will search for a unit to connect to. If set, `serverAddress` must also be set.| |
+|`showControls`|Boolean|Whether you'd like to show buttons for controlling pool equipment. Must also setup the `controls` array.|`false`|
 |`showPoolTemp`|Boolean|Whether you'd like to show pool temperature or not.|`true`|
 |`showSpaTemp`|Boolean|Whether you'd like to show spa temperature or not.|`true`|
 |`showPH`|Boolean|Whether you'd like to show pH level or not.|`true`|
@@ -21,6 +22,7 @@ A <a href="https://github.com/MichMich/MagicMirror">MagicMirror²</a> module use
 |`showFreezeMode`|Boolean|Whether you'd like to show a banner when the pool is in freeze mode or not. [added in v1.0.1]|`true`|
 |`colored`|Boolean|Whether you'd like colored output or not.|`true`|
 |`coldTemp`|Integer|Show the temperature colored blue if it's at or below this level for pool/spa (requires option `colored`). This is in whatever scale your system is set to (Fahrenheit/Celsius).|`84`|
+|`controls`|Array|List of controls to show buttons for. Must also set `showControls` to `true`.<br><br>Each entry in this list is an object with an `id` property and optionally a `name` override. If no `name` is specified, the name of the equipment in the ScreenLogic system will be used.|`[]`|
 |`hotTemp`|Integer|Show the temperature colored red if it's at or above this level for pool/spa (requires option `colored`). This is in whatever scale your system is set to (Fahrenheit/Celsius).|`90`|
 |`columns`|Integer|How many columns to use to display the data before starting a new row.|`3`|
 |`contentClass`|String|The CSS class used to display content values (beneath the header).|`"light"`|
@@ -35,7 +37,12 @@ Here is an example of an entry in config.js
 	config: {
 		showSpaTemp: false,
 		columns: 2,
-		contentClass: 'thin'
+		contentClass: 'thin',
+		showControls: true,
+		controls: [
+			{id: 500},
+			{id: 505, name: 'Pool'}
+		]
 	}
 },
 ```

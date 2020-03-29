@@ -5,3 +5,52 @@
 .MMM-ScreenLogic table.colored .hot-temp {
 	color: #FF8E99;
 }
+
+.MMM-ScreenLogic td {
+	width: 33%;
+}
+
+.MMM-ScreenLogic button.control {
+    background: #000;
+    border: 1px solid #6c757d;
+    font-size: .9rem;
+    color: #fff;
+    display: block;
+    text-align: center;
+    line-height: 1.5;
+    transition: color .15s ease-in-out,background-color .15s ease-in-out,border-color .15s ease-in-out,box-shadow .15s ease-in-out;
+	box-sizing: border-box;
+	position: relative;
+	width: 80%;
+	height: 5rem;
+	margin: auto;
+	font-weight: bold;
+}
+
+.MMM-ScreenLogic button.control:after {
+	padding-bottom: 100%;
+	content: "";
+	display: block;
+}
+
+.MMM-ScreenLogic button.control .content {
+	position: absolute;
+    width: 90%;
+    height: 90%;
+    left: 0px;
+    top: 0px;
+    padding: 5%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.control-on {
+	background: #28a745 !important;
+	border-color: #28a745 !important;
+}
+
+.control-off {
+	background: #6c757d !important;
+	border-color: #6c757d !important;
+}

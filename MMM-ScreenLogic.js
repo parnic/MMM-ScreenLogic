@@ -1,4 +1,5 @@
 poolData = {};
+var moduleObj;
 
 Module.register("MMM-ScreenLogic",{
 	defaults: {
@@ -9,6 +10,8 @@ Module.register("MMM-ScreenLogic",{
 		showSaltLevel: true,
 		showSaturation: true,
 		showFreezeMode: true,
+		showControls: false,
+		controls: [],
 		colored: true,
 		coldTemp: 84,
 		hotTemp: 90,
@@ -18,6 +21,13 @@ Module.register("MMM-ScreenLogic",{
 	},
 
 	start: function() {
+		// this isn't a great solution...is there a better one? needed to do stuff with buttons
+		moduleObj = this;
+		if (this.config.showControls && (!this.config.controls || this.config.controls.length == 0)) {
+			Log.warn('Controls are enabled, but no controls are configured. See README for info on setting up controls.');
+			this.config.showControls = false;
+		}
+
 		this.sendSocketNotification('SCREENLOGIC_CONFIG', this.config);
 		this.sendSocketNotification('SCREENLOGIC_UPDATE');
 	},
@@ -98,6 +108,39 @@ Module.register("MMM-ScreenLogic",{
 					class: this.config.contentClass
 				});
 			}
+			if (this.config.showControls) {
+				for (var control in this.config.controls) {
+					var controlObj = this.config.controls[control];
+
+					var name = controlObj.name;
+					for (var circuit in poolData.controllerConfig.bodyArray) {
+						if (poolData.controllerConfig.bodyArray[circuit].circuitId == controlObj.id) {
+							if (!name) {
+								name = poolData.controllerConfig.bodyArray[circuit].name;
+							}
+						}
+					}
+
+					var on = false;
+					for (var circuit in poolData.status.circuitArray) {
+						if (poolData.status.circuitArray[circuit].id == controlObj.id) {
+							on = poolData.status.circuitArray[circuit].state !== 0;
+						}
+					}
+
+					var cls = '';
+					if (this.config.colored) {
+						cls = on ? 'control-on' : 'control-off';
+					}
+
+					contents.push({
+						data: '<button id="sl-control-' + controlObj.id + '" class="control ' + cls + '" onclick="setCircuit(this)" data-circuit="' +
+							controlObj.id + '" data-state="' + (on ? '1' : '0') + '"><div class="content">' +
+							name + '</div></button>',
+						class: this.config.contentClass
+					});
+				}
+			}
 
 			var headerRow = null;
 			var contentRow = null;
@@ -116,15 +159,17 @@ Module.register("MMM-ScreenLogic",{
 			for (var item in contents) {
 				cols++;
 				if (cols % this.config.columns === 0) {
-					var headerRow = document.createElement('tr');
-					var contentRow = document.createElement('tr');
+					headerRow = document.createElement('tr');
+					contentRow = document.createElement('tr');
 					table.appendChild(headerRow);
 					table.appendChild(contentRow);
 				}
 
-				var headerCell = document.createElement('th');
-				headerCell.innerHTML = contents[item].header;
-				headerRow.appendChild(headerCell);
+				if (contents[item].header) {
+					var headerCell = document.createElement('th');
+					headerCell.innerHTML = contents[item].header;
+					headerRow.appendChild(headerCell);
+				}
 
 				var contentCell = document.createElement('td');
 				contentCell.innerHTML = contents[item].data;
@@ -140,8 +185,15 @@ Module.register("MMM-ScreenLogic",{
 		if (notification === 'SCREENLOGIC_RESULT') {
 			poolData = payload;
 			this.updateDom();
+		} else if (notification === 'SCREENLOGIC_CIRCUIT_DONE') {
+			var obj = document.getElementById('sl-control-' + payload.id);
+			if (this.config.colored) {
+				var on = payload.state !== 0;
+				obj.classList.add(on ? 'control-on' : 'control-off');
+			}
+			obj.dataset.state = payload.state;
 		}
-	}
+	},
 });
 
 const SPA_CIRCUIT_ID = 500;
@@ -171,4 +223,11 @@ function isSpaActive(status) {
 			return status.circuitArray[i].state === 1;
 		}
 	}
+}
+
+function setCircuit(e) {
+	var circuitId = parseInt(e.dataset.circuit);
+	var on = e.dataset.state !== '0';
+	moduleObj.sendSocketNotification('SCREENLOGIC_CIRCUIT', {id: circuitId, state: on ? 0 : 1});
+	e.classList.remove('control-on', 'control-off');
 }

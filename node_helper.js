@@ -12,6 +12,13 @@ module.exports = NodeHelper.create({
 		});
 	},
 
+	setCircuit: function(circuitState) {
+		var self = this;
+		setCircuitState(circuitState, function(done) {
+			self.sendSocketNotification('SCREENLOGIC_CIRCUIT_DONE', circuitState);
+		});
+	},
+
 	setTimer: function(updateInterval) {
 		var update = true;
 		update = typeof this.updateInterval === 'undefined' || this.updateInterval != updateInterval;
@@ -37,16 +44,33 @@ module.exports = NodeHelper.create({
 		if (notification === 'SCREENLOGIC_UPDATE') {
 			this.doUpdate();
 		}
+		if (notification === 'SCREENLOGIC_CIRCUIT') {
+			this.setCircuit(payload);
+		}
+		if (notification === 'SCREENLOGIC_HEATPOINT') {
+			this.setHeatpoint(payload);
+		}
+		if (notification === 'SCREENLOGIC_HEATSTATE') {
+			this.setHeatstate(payload);
+		}
+		if (notification === 'SCREENLOGIC_LIGHTCMD') {
+			this.setLightcmd(payload);
+		}
 	}
 });
 
 const ScreenLogic = require('node-screenlogic');
+var foundUnit;
 
 function getPoolData(config, cb) {
-	if (typeof config === 'undefined' || !config.serverAddress || !config.serverPort) {
-		findServer(cb);
+	if (!foundUnit && typeof config !== 'undefined' && config.serverAddress && config.serverPort) {
+		foundUnit = new ScreenLogic.UnitConnection(config.serverPort, config.serverAddress);
+	}
+
+	if (foundUnit) {
+		populateSystemData(cb);
 	} else {
-		populateSystemData(new ScreenLogic.UnitConnection(config.serverPort, config.serverAddress), cb);
+		findServer(cb);
 	}
 }
 
@@ -54,26 +78,50 @@ function findServer(cb) {
 	var finder = new ScreenLogic.FindUnits();
 	finder.on('serverFound', function(server) {
 		finder.close();
-		populateSystemData(new ScreenLogic.UnitConnection(server), cb);
+
+		foundUnit = new ScreenLogic.UnitConnection(server);
+		populateSystemData(cb);
 	});
 
 	finder.search();
 }
 
-function populateSystemData(unit, cb) {
+function populateSystemData(cb) {
 	var poolData = {};
 
-	unit.on('loggedIn', function() {
-		unit.getControllerConfig();
-	}).on('controllerConfig', function(config) {
+	if (!foundUnit) {
+		cb(poolData);
+		return;
+	}
+
+	foundUnit.once('loggedIn', function() {
+		foundUnit.getControllerConfig();
+	}).once('controllerConfig', function(config) {
+		poolData.controllerConfig = config;
 		poolData.degStr = config.degC ? 'C' : 'F';
-		unit.getPoolStatus();
-	}).on('poolStatus', function(status) {
+		foundUnit.getPoolStatus();
+	}).once('poolStatus', function(status) {
 		poolData.status = status;
 
-		unit.close();
+		foundUnit.close();
 		cb(poolData);
 	});
 
-	unit.connect();
+	foundUnit.connect();
+}
+
+function setCircuitState(circuitState, cb) {
+	if (!foundUnit) {
+		cb();
+		return;
+	}
+
+	foundUnit.once('loggedIn', function() {
+		foundUnit.setCircuitState(0, circuitState.id, circuitState.state);
+	}).once('circuitStateChanged', function() {
+		foundUnit.close();
+		cb(true);
+	});
+
+	foundUnit.connect();
 }
