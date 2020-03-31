@@ -14,9 +14,29 @@ module.exports = NodeHelper.create({
 
 	setCircuit: function(circuitState) {
 		var self = this;
-		setCircuitState(circuitState, function(done) {
-			self.sendSocketNotification('SCREENLOGIC_CIRCUIT_DONE', circuitState);
+		setCircuitState(circuitState, function(poolStatus) {
+			self.sendSocketNotification('SCREENLOGIC_CIRCUIT_DONE', {circuitState: circuitState, status: poolStatus});
 		});
+	},
+
+	setHeatpoint: function(heatpoint) {
+		var self = this;
+		setHeatpointState(heatpoint, function(poolStatus) {
+			self.sendSocketNotification('SCREENLOGIC_HEATPOINT_DONE', {heatpoint: heatpoint, status: poolStatus});
+		});
+	},
+
+	setHeatstate: function(heatstate) {
+		var self = this;
+		setHeatstateState(heatstate, function(poolStatus) {
+			self.sendSocketNotification('SCREENLOGIC_HEATSTATE_DONE', {heatstate: heatstate, status: poolStatus});
+		});
+	},
+
+	restartTimer: function() {
+		var interval = this.updateInterval;
+		this.updateInterval = undefined;
+		this.setTimer(interval);
 	},
 
 	setTimer: function(updateInterval) {
@@ -119,8 +139,46 @@ function setCircuitState(circuitState, cb) {
 	foundUnit.once('loggedIn', function() {
 		foundUnit.setCircuitState(0, circuitState.id, circuitState.state);
 	}).once('circuitStateChanged', function() {
+		foundUnit.getPoolStatus();
+	}).once('poolStatus', function(status) {
 		foundUnit.close();
-		cb(true);
+		cb(status);
+	});
+
+	foundUnit.connect();
+}
+
+function setHeatpointState(heatpoint, cb) {
+	if (!foundUnit) {
+		cb();
+		return;
+	}
+
+	foundUnit.once('loggedIn', function() {
+		foundUnit.setSetPoint(0, heatpoint.body, heatpoint.temperature);
+	}).once('setPointChanged', function() {
+		foundUnit.getPoolStatus();
+	}).once('poolStatus', function(status) {
+		foundUnit.close();
+		cb(status);
+	});
+
+	foundUnit.connect();
+}
+
+function setHeatstateState(heatstate, cb) {
+	if (!foundUnit) {
+		cb();
+		return;
+	}
+
+	foundUnit.once('loggedIn', function() {
+		foundUnit.setHeatMode(0, heatstate.body, heatstate.state);
+	}).once('heatModeChanged', function() {
+		foundUnit.getPoolStatus();
+	}).once('poolStatus', function(status) {
+		foundUnit.close();
+		cb(status);
 	});
 
 	foundUnit.connect();

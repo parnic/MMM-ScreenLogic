@@ -112,33 +112,59 @@ Module.register("MMM-ScreenLogic",{
 				for (var control in this.config.controls) {
 					var controlObj = this.config.controls[control];
 
-					var name = controlObj.name;
-					for (var circuit in poolData.controllerConfig.bodyArray) {
-						if (poolData.controllerConfig.bodyArray[circuit].circuitId == controlObj.id) {
-							if (!name) {
-								name = poolData.controllerConfig.bodyArray[circuit].name;
+					if (controlObj.type === 'circuit') {
+						var name = controlObj.name;
+						for (var circuit in poolData.controllerConfig.bodyArray) {
+							if (poolData.controllerConfig.bodyArray[circuit].circuitId == controlObj.id) {
+								if (!name) {
+									name = poolData.controllerConfig.bodyArray[circuit].name;
+								}
 							}
 						}
-					}
 
-					var on = false;
-					for (var circuit in poolData.status.circuitArray) {
-						if (poolData.status.circuitArray[circuit].id == controlObj.id) {
-							on = poolData.status.circuitArray[circuit].state !== 0;
+						var on = false;
+						for (var circuit in poolData.status.circuitArray) {
+							if (poolData.status.circuitArray[circuit].id == controlObj.id) {
+								on = poolData.status.circuitArray[circuit].state !== 0;
+							}
 						}
-					}
 
-					var cls = '';
-					if (this.config.colored) {
-						cls = on ? 'control-on' : 'control-off';
-					}
+						var cls = '';
+						if (this.config.colored) {
+							cls = on ? 'control-on' : 'control-off';
+						}
 
-					contents.push({
-						data: '<button id="sl-control-' + controlObj.id + '" class="control ' + cls + '" onclick="setCircuit(this)" data-circuit="' +
-							controlObj.id + '" data-state="' + (on ? '1' : '0') + '"><div class="content">' +
-							name + '</div></button>',
-						class: this.config.contentClass
-					});
+						contents.push({
+							data: '<button id="sl-control-' + controlObj.id + '" class="control ' + cls + '" onclick="setCircuit(this)" data-circuit="' +
+								controlObj.id + '" data-state="' + (on ? '1' : '0') + '"><div class="content">' +
+								name + '</div></button>',
+							class: this.config.contentClass
+						});
+					} else if (controlObj.type === 'heatpoint') {
+
+					} else if (controlObj.type === 'heatmode') {
+						if (controlObj.body < 0 || controlObj.body > poolData.status.heatStatus.length) {
+							Log.warn('Invalid body specified for heatmode');
+							continue;
+						}
+
+						var on = poolData.status.heatStatus[controlObj.body] !== 0;
+
+						var cls = '';
+						if (this.config.colored) {
+							cls = on ? 'control-on' : 'control-off';
+						}
+
+						contents.push({
+							data: '<button id="sl-heat-' + controlObj.body + '" class="control ' + cls + '" onclick="setHeatmode(this)" data-body="' +
+								controlObj.body + '" data-state="' + (on ? '1' : '0') + '"><div class="content">' +
+								controlObj.name + '</div></button>',
+							class: this.config.contentClass
+						});
+					} else {
+						Log.warn('circuit with unknown type, unable to display:');
+						Log.warn(controlObj);
+					}
 				}
 			}
 
@@ -185,13 +211,9 @@ Module.register("MMM-ScreenLogic",{
 		if (notification === 'SCREENLOGIC_RESULT') {
 			poolData = payload;
 			this.updateDom();
-		} else if (notification === 'SCREENLOGIC_CIRCUIT_DONE') {
-			var obj = document.getElementById('sl-control-' + payload.id);
-			if (this.config.colored) {
-				var on = payload.state !== 0;
-				obj.classList.add(on ? 'control-on' : 'control-off');
-			}
-			obj.dataset.state = payload.state;
+		} else if (notification === 'SCREENLOGIC_CIRCUIT_DONE' || notification === 'SCREENLOGIC_HEATSTATE_DONE') {
+			poolData.status = payload.status;
+			this.updateDom();
 		}
 	},
 });
@@ -229,5 +251,12 @@ function setCircuit(e) {
 	var circuitId = parseInt(e.dataset.circuit);
 	var on = e.dataset.state !== '0';
 	moduleObj.sendSocketNotification('SCREENLOGIC_CIRCUIT', {id: circuitId, state: on ? 0 : 1});
+	e.classList.remove('control-on', 'control-off');
+}
+
+function setHeatmode(e) {
+	var bodyId = parseInt(e.dataset.body);
+	var on = e.dataset.state !== '0';
+	moduleObj.sendSocketNotification('SCREENLOGIC_HEATSTATE', {body: bodyId, state: on ? 0 : 1});
 	e.classList.remove('control-on', 'control-off');
 }

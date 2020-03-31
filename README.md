@@ -22,7 +22,7 @@ A <a href="https://github.com/MichMich/MagicMirror">MagicMirror²</a> module use
 |`showFreezeMode`|Boolean|Whether you'd like to show a banner when the pool is in freeze mode or not. [added in v1.0.1]|`true`|
 |`colored`|Boolean|Whether you'd like colored output or not.|`true`|
 |`coldTemp`|Integer|Show the temperature colored blue if it's at or below this level for pool/spa (requires option `colored`). This is in whatever scale your system is set to (Fahrenheit/Celsius).|`84`|
-|`controls`|Array|List of controls to show buttons for. Must also set `showControls` to `true`.<br><br>Each entry in this list is an object with an `id` property and optionally a `name` override. If no `name` is specified, the name of the equipment in the ScreenLogic system will be used.|`[]`|
+|`controls`|Array|List of controls to show buttons for. Must also set `showControls` to `true`.<br><br>Each entry in this list is an object with a `type` property and a `name` to display.<br><br>Valid `type`s:<br>`circuit` - toggle a circuit on or off. Must also have an `id` property defining the circuit ID to set (see [node-screenlogic](https://github.com/parnic/node-screenlogic) documentation for circuit IDs). `name` is optional; if not specified, the name of the equipment in the ScreenLogic system will be used.<br>`heatmode` - enable or disable the heater for the pool or spa. Must also have a `body` property that defines which body to toggle the heater for (`0` is the pool, `1` is the spa)|`[]`|
 |`hotTemp`|Integer|Show the temperature colored red if it's at or above this level for pool/spa (requires option `colored`). This is in whatever scale your system is set to (Fahrenheit/Celsius).|`90`|
 |`columns`|Integer|How many columns to use to display the data before starting a new row.|`3`|
 |`contentClass`|String|The CSS class used to display content values (beneath the header).|`"light"`|
@@ -40,8 +40,9 @@ Here is an example of an entry in config.js
 		contentClass: 'thin',
 		showControls: true,
 		controls: [
-			{id: 500},
-			{id: 505, name: 'Pool'}
+			{type: 'circuit', id: 500},
+			{type: 'circuit', id: 505, name: 'Pool'},
+			{type: 'heatmode', body: 0, name: 'Pool heater'}
 		]
 	}
 },
@@ -58,5 +59,7 @@ This module only works with ScreenLogic controllers on the local network via eit
 
 The data is updated every 30 minutes by default (configurable with `updateInterval`).
 
+When toggling a circuit or changing heat mode, sometimes other circuits are affected. For example, some pools share the same pump for the pool and spa, so when the pool is toggled on the spa must be toggled off. Unfortunately the ScreenLogic system doesn't update its internal status at any predictable rate, so the data on the screen can be wrong immediately after toggling a circuit until the next periodic update runs. If you know of a reliable way around this, please open a pull request!
+
 ## Libraries
-This uses a Node.JS library I created for interfacing with ScreenLogic controllers over the network: <a href="https://github.com/parnic/node-screenlogic">node-screenlogic</a>, so feel free to check that out for more information.
+This uses a Node.JS library I created for interfacing with ScreenLogic controllers over the network: [node-screenlogic](https://github.com/parnic/node-screenlogic), so feel free to check that out for more information.
