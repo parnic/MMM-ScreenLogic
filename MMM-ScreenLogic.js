@@ -141,7 +141,22 @@ Module.register("MMM-ScreenLogic",{
 							class: this.config.contentClass
 						});
 					} else if (controlObj.type === 'heatpoint') {
+						if (controlObj.body < 0 || controlObj.body > poolData.status.setPoint.length) {
+							Log.warn('Invalid body specified for heatpoint');
+							continue;
+						}
 
+						var temperature = poolData.status.setPoint[controlObj.body];
+
+						var dataHtml = '<div class="temperature-container">';
+						dataHtml += '<button id="sl-temp-up-'+controlObj.body+'" class="temperature control-off" onclick="setHeatpoint(this, 1)" data-body="'+controlObj.body+'" data-temperature="'+temperature+'"><div class="content">+</div></button>';
+						dataHtml += '<div class="temperature-label">'+controlObj.name+': '+temperature+'&deg;</div>';
+						dataHtml += '<button id="sl-temp-down-'+controlObj.body+'" class="temperature control-off" onclick="setHeatpoint(this, -1)" data-body="'+controlObj.body+'" data-temperature="'+temperature+'"><div class="content">-</div></button>';
+
+						contents.push({
+							data: dataHtml,
+							class: this.config.contentClass
+						});
 					} else if (controlObj.type === 'heatmode') {
 						if (controlObj.body < 0 || controlObj.body > poolData.status.heatStatus.length) {
 							Log.warn('Invalid body specified for heatmode');
@@ -211,7 +226,9 @@ Module.register("MMM-ScreenLogic",{
 		if (notification === 'SCREENLOGIC_RESULT') {
 			poolData = payload;
 			this.updateDom();
-		} else if (notification === 'SCREENLOGIC_CIRCUIT_DONE' || notification === 'SCREENLOGIC_HEATSTATE_DONE') {
+		} else if (notification === 'SCREENLOGIC_CIRCUIT_DONE'
+			|| notification === 'SCREENLOGIC_HEATSTATE_DONE'
+			|| notification === 'SCREENLOGIC_HEATPOINT_DONE') {
 			poolData.status = payload.status;
 			this.updateDom();
 		}
@@ -258,5 +275,12 @@ function setHeatmode(e) {
 	var bodyId = parseInt(e.dataset.body);
 	var on = e.dataset.state !== '0';
 	moduleObj.sendSocketNotification('SCREENLOGIC_HEATSTATE', {body: bodyId, state: on ? 0 : 1});
+	e.classList.remove('control-on', 'control-off');
+}
+
+function setHeatpoint(e, tempChange) {
+	var bodyId = parseInt(e.dataset.body);
+	var temp = parseInt(e.dataset.temperature) + tempChange;
+	moduleObj.sendSocketNotification('SCREENLOGIC_HEATPOINT', {body: bodyId, temperature: temp});
 	e.classList.remove('control-on', 'control-off');
 }
