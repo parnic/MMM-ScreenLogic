@@ -33,6 +33,13 @@ module.exports = NodeHelper.create({
 		});
 	},
 
+	setLightcmd: function(lightCmd) {
+		var self = this;
+		setLights(lightCmd, function(poolStatus) {
+			self.sendSocketNotification('SCREENLOGIC_LIGHTCMD_DONE', {lightCmd: lightCmd, status: poolStatus});
+		});
+	},
+
 	restartTimer: function() {
 		var interval = this.updateInterval;
 		this.updateInterval = undefined;
@@ -175,6 +182,24 @@ function setHeatstateState(heatstate, cb) {
 	foundUnit.once('loggedIn', function() {
 		foundUnit.setHeatMode(0, heatstate.body, heatstate.state);
 	}).once('heatModeChanged', function() {
+		foundUnit.getPoolStatus();
+	}).once('poolStatus', function(status) {
+		foundUnit.close();
+		cb(status);
+	});
+
+	foundUnit.connect();
+}
+
+function setLights(lightCmd, cb) {
+	if (!foundUnit) {
+		cb();
+		return;
+	}
+
+	foundUnit.once('loggedIn', function() {
+		foundUnit.sendLightCommand(0, lightCmd);
+	}).once('sentLightCommand', function() {
 		foundUnit.getPoolStatus();
 	}).once('poolStatus', function(status) {
 		foundUnit.close();
