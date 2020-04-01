@@ -6,7 +6,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 ### Added
-- Ability to show buttons for controlling pool equipment (with a touch screen, for example).
+- Ability to show buttons for controlling pool equipment (with a touch screen, for example). NOTE: running `npm install` again is necessary after upgrading to this version if the heat controls are used.
 
 ## [1.0.3] - 2018-04-27
 ### Changed
