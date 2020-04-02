@@ -1,6 +1,6 @@
 {
   "name": "magic-mirror-module-screenlogic",
-  "version": "1.0.3",
+  "version": "1.1.0",
   "description": "Show data from Pentair ScreenLogic systems",
   "main": "MMM-ScreenLogic.js",
   "author": "Chris Pickett",
