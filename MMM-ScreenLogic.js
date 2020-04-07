@@ -164,6 +164,7 @@ Module.register("MMM-ScreenLogic",{
 						}
 
 						var on = poolData.status.heatStatus[controlObj.body] !== 0;
+						var mode = typeof controlObj.heatMode === 'number' ? controlObj.heatMode : 3;
 
 						var cls = '';
 						if (this.config.colored) {
@@ -172,7 +173,7 @@ Module.register("MMM-ScreenLogic",{
 
 						contents.push({
 							data: '<button id="sl-heat-' + controlObj.body + '" class="control ' + cls + '" onclick="setHeatmode(this)" data-body="' +
-								controlObj.body + '" data-state="' + (on ? '1' : '0') + '"><div class="content">' +
+								controlObj.body + '" data-state="' + (on ? '1' : '0') + '" data-mode="' + mode.toString() + '"><div class="content">' +
 								controlObj.name + '</div></button>',
 							class: this.config.contentClass
 						});
@@ -274,7 +275,8 @@ function setCircuit(e) {
 function setHeatmode(e) {
 	var bodyId = parseInt(e.dataset.body);
 	var on = e.dataset.state !== '0';
-	moduleObj.sendSocketNotification('SCREENLOGIC_HEATSTATE', {body: bodyId, state: on ? 0 : 1});
+	var mode = e.dataset.mode;
+	moduleObj.sendSocketNotification('SCREENLOGIC_HEATSTATE', {body: bodyId, state: on ? 0 : parseInt(mode)});
 	e.classList.remove('control-on', 'control-off');
 }
 
