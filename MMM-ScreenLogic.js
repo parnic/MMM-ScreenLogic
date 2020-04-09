@@ -158,12 +158,12 @@ Module.register("MMM-ScreenLogic",{
 							class: this.config.contentClass
 						});
 					} else if (controlObj.type === 'heatmode') {
-						if (controlObj.body < 0 || controlObj.body > poolData.status.heatStatus.length) {
+						if (controlObj.body < 0 || controlObj.body > poolData.status.heatMode.length) {
 							Log.warn('Invalid body specified for heatmode');
 							continue;
 						}
 
-						var on = poolData.status.heatStatus[controlObj.body] !== 0;
+						var on = poolData.status.heatMode[controlObj.body] !== 0;
 						var mode = typeof controlObj.heatMode === 'number' ? controlObj.heatMode : 3;
 
 						var cls = '';
