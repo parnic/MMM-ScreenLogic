@@ -1,13 +1,16 @@
 # MMM-ScreenLogic
-A <a href="https://github.com/MichMich/MagicMirror">MagicMirror²</a> module used to connect to a local Pentair ScreenLogic pool controller system.
+
+[MagicMirror²](https://github.com/MichMich/MagicMirror) module used to connect to a local Pentair ScreenLogic pool controller system.
 
 ## Installation
+
 1. Navigate into your MagicMirror's `modules` folder and execute `git clone https://github.com/parnic/MMM-ScreenLogic.git`.
 2. `cd MMM-ScreenLogic`
-3. Execute `npm install` to install the node dependencies.
+3. Execute `npm install --production` to install the node dependencies.
 4. Add the module inside `config.js` placing it where you prefer.
 
 ## Config
+
 |Option|Type|Description|Default|
 |---|---|---|---|
 |`coldTemp`|Integer|Show the temperature colored blue if it's at or below this level for pool/spa (requires option `colored`). This is in whatever scale your system is set to (Fahrenheit/Celsius).|`84`|
@@ -29,32 +32,36 @@ A <a href="https://github.com/MichMich/MagicMirror">MagicMirror²</a> module use
 |`updateInterval`|Integer|How frequently, in milliseconds, to update pool data.|`30 * 60 * 1000` (every 30 minutes)|
 
 Here is an example of an entry in config.js
-```
+
+```js
 {
-	module: 'MMM-ScreenLogic',
-	header: 'Pool info',
-	position: 'top_left',
-	config: {
-		showSpaTemp: false,
-		columns: 2,
-		contentClass: 'thin',
-		showControls: true,
-		controls: [
-			{type: 'circuit', id: 500},
-			{type: 'circuit', id: 505, name: 'Pool'},
-			{type: 'heatmode', body: 0, name: 'Pool heater'},
-			{type: 'heatpoint', body: 0, name: 'Pool'},
-			{type: 'heatmode', body: 1, heatMode: 2, name: 'Spa heater'},
-		]
-	}
+    module: 'MMM-ScreenLogic',
+    header: 'Pool info',
+    position: 'top_left',
+    config: {
+        showSpaTemp: false,
+        columns: 2,
+        contentClass: 'thin',
+        showControls: true,
+        controls: [
+            {type: 'circuit', id: 500},
+            {type: 'circuit', id: 505, name: 'Pool'},
+            {type: 'heatmode', body: 0, name: 'Pool heater'},
+            {type: 'heatpoint', body: 0, name: 'Pool'},
+            {type: 'heatmode', body: 1, heatMode: 2, name: 'Spa heater'},
+        ]
+    }
 },
 ```
 
 ## Screenshot
-#### With color
+
+### With color
+
 ![Screenshot with color](/screenshot.png?raw=true "colored: true")
 
 ## Notes
+
 Pull requests are very welcome! If you'd like to see any additional functionality, don't hesitate to let me know.
 
 This module only works with ScreenLogic controllers on the local network via either a UDP broadcast on 255.255.255.255 or a direct connection if you've specified an address and port in the configuration.
@@ -64,4 +71,5 @@ The data is updated every 30 minutes by default (configurable with `updateInterv
 When toggling a circuit or changing heat mode, sometimes other circuits are affected. For example, some pools share the same pump for the pool and spa, so when the pool is toggled on the spa must be toggled off. Unfortunately the ScreenLogic system doesn't update its internal status at any predictable rate, so the data on the screen can be wrong immediately after toggling a circuit until the next periodic update runs. If you know of a reliable way around this, please open a pull request!
 
 ## Libraries
+
 This uses a Node.JS library I created for interfacing with ScreenLogic controllers over the network: [node-screenlogic](https://github.com/parnic/node-screenlogic), so feel free to check that out for more information.

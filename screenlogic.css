@@ -1,13 +1,13 @@
 .MMM-ScreenLogic table.colored .cold-temp {
-	color: #BCDDFF;
+    color: #BCDDFF;
 }
 
 .MMM-ScreenLogic table.colored .hot-temp {
-	color: #FF8E99;
+    color: #FF8E99;
 }
 
 .MMM-ScreenLogic td {
-	width: 33%;
+    width: 33%;
 }
 
 .MMM-ScreenLogic .control {
@@ -19,11 +19,11 @@
     text-align: center;
     line-height: 1.5;
     transition: color .15s ease-in-out,background-color .15s ease-in-out,border-color .15s ease-in-out,box-shadow .15s ease-in-out;
-	box-sizing: border-box;
-	position: relative;
-	width: 80%;
-	height: 5rem;
-	margin: auto;
+    box-sizing: border-box;
+    position: relative;
+    width: 80%;
+    height: 5rem;
+    margin: auto;
     font-weight: bold;
     -webkit-user-select: none;
     -moz-user-select: none;
@@ -34,13 +34,13 @@
 }
 
 .MMM-ScreenLogic .control:after {
-	padding-bottom: 100%;
-	content: "";
-	display: block;
+    padding-bottom: 100%;
+    content: "";
+    display: block;
 }
 
 .MMM-ScreenLogic .content {
-	position: absolute;
+    position: absolute;
     width: 90%;
     height: 90%;
     left: 0px;
@@ -52,13 +52,13 @@
 }
 
 .MMM-ScreenLogic .control-on {
-	background: #28a745 !important;
-	border-color: #28a745 !important;
+    background: #28a745 !important;
+    border-color: #28a745 !important;
 }
 
 .MMM-ScreenLogic .control-off {
-	background: transparent !important;
-	border-color: #6c757d !important;
+    background: transparent !important;
+    border-color: #6c757d !important;
 }
 
 .MMM-ScreenLogic .temperature-container {
@@ -81,10 +81,10 @@
     background: #000;
     border: 0px solid #6c757d;
     color: #fff;
-	position: relative;
-	width: 80%;
-	height: 2.45rem;
-	margin: auto;
+    position: relative;
+    width: 80%;
+    height: 2.45rem;
+    margin: auto;
     font-weight: bold;
     -webkit-user-select: none;
     -moz-user-select: none;
