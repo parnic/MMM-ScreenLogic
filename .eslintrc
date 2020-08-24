@@ -6,7 +6,8 @@
         "radix": [2, "as-needed"],
         "no-console": 0,
         "linebreak-style": "off",
-        "prettier/prettier": 0
+        "prettier/prettier": 0,
+        "quotes": ["error", "single"]
     },
     "settings": {
         "import/core-modules": [ "node_helper" ]

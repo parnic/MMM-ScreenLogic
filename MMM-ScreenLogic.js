@@ -1,7 +1,7 @@
 let poolData = {};
 let moduleObj;
 
-Module.register("MMM-ScreenLogic",{
+Module.register('MMM-ScreenLogic',{
     defaults: {
         showPoolTemp: true,
         showSpaTemp: true,
@@ -16,7 +16,7 @@ Module.register("MMM-ScreenLogic",{
         coldTemp: 84,
         hotTemp: 90,
         columns: 3,
-        contentClass: "light",
+        contentClass: 'light',
         updateInterval: 30 * 60 * 1000
     },
 
@@ -33,77 +33,77 @@ Module.register("MMM-ScreenLogic",{
     },
 
     getStyles: function() {
-        return ["screenlogic.css"];
+        return ['screenlogic.css'];
     },
 
     getDom: function() {
         if (!poolData.status) {
-            let wrapper = document.createElement("div");
+            let wrapper = document.createElement('div');
             wrapper.innerHTML = 'Loading...';
-            wrapper.className += "dimmed light small";
+            wrapper.className += 'dimmed light small';
 
             return wrapper;
         } else {
             let table = document.createElement('table');
-            table.className = "small";
+            table.className = 'small';
             if (this.config.colored) {
-                table.className += " colored";
+                table.className += ' colored';
             }
 
             let contents = [];
 
             if (this.config.showPoolTemp) {
-                let className = "";
+                let className = '';
                 if (poolData.status.currentTemp[0] <= this.config.coldTemp) {
-                    className += " cold-temp";
+                    className += ' cold-temp';
                 } else if (poolData.status.currentTemp[0] >= this.config.hotTemp) {
-                    className += " hot-temp";
+                    className += ' hot-temp';
                 }
 
                 contents.push({
-                    header: "Pool temp",
-                    data: poolData.status.currentTemp[0] + "&deg;" + (!isPoolActive(poolData.status) ? " (last)" : ""),
+                    header: 'Pool temp',
+                    data: poolData.status.currentTemp[0] + '&deg;' + (!isPoolActive(poolData.status) ? ' (last)' : ''),
                     class: this.config.contentClass + className
                 });
             }
             if (this.config.showSpaTemp) {
-                let className = "";
+                let className = '';
                 if (poolData.status.currentTemp[1] <= this.config.coldTemp) {
-                    className = " cold-temp";
+                    className = ' cold-temp';
                 } else if (poolData.status.currentTemp[1] >= this.config.hotTemp) {
-                    className = " hot-temp";
+                    className = ' hot-temp';
                 }
 
                 contents.push({
-                    header: "Spa temp",
-                    data: poolData.status.currentTemp[1] + "&deg;" + (!isSpaActive(poolData.status) ? " (last)" : ""),
+                    header: 'Spa temp',
+                    data: poolData.status.currentTemp[1] + '&deg;' + (!isSpaActive(poolData.status) ? ' (last)' : ''),
                     class: this.config.contentClass + className
                 });
             }
             if (this.config.showPH) {
                 contents.push({
-                    header: "pH",
+                    header: 'pH',
                     data: poolData.status.pH,
                     class: this.config.contentClass
                 });
             }
             if (this.config.showOrp) {
                 contents.push({
-                    header: "ORP",
+                    header: 'ORP',
                     data: poolData.status.orp,
                     class: this.config.contentClass
                 });
             }
             if (this.config.showSaltLevel) {
                 contents.push({
-                    header: "Salt PPM",
+                    header: 'Salt PPM',
                     data: poolData.status.saltPPM,
                     class: this.config.contentClass
                 });
             }
             if (this.config.showSaturation) {
                 contents.push({
-                    header: "Saturation",
+                    header: 'Saturation',
                     data: poolData.status.saturation,
                     class: this.config.contentClass
                 });

@@ -58,7 +58,7 @@ module.exports = NodeHelper.create({
 
             var self = this;
             self.timer = setInterval(function() {
-                self.doUpdate()
+                self.doUpdate();
             }, self.updateInterval);
         }
     },
