@@ -93,3 +93,39 @@
     cursor: none;
     outline: none;
 }
+
+.MMM-ScreenLogic .vertical {
+    display: inline-block;
+    width: 20%;
+    height: 0.7em;
+    -webkit-transform: rotate(-90deg); /* Chrome, Safari, Opera */
+    transform: rotate(-90deg);
+}
+
+.MMM-ScreenLogic .vertical {
+    box-shadow: inset 0px 0px 3px #ccc;
+}
+
+.MMM-ScreenLogic .progress-bar {
+    box-shadow: inset 0px 0px 3px rgba(100, 100, 100, 0.6);
+}
+
+.MMM-ScreenLogic .progress-bar {
+    float: left;
+    width: 0;
+    height: 100%;
+    font-size: 12px;
+    line-height: 20px;
+    color: #fff;
+    text-align: center;
+    background-color: #337ab7;
+    -webkit-box-shadow: inset 0 -1px 0 rgba(0,0,0,.15);
+    box-shadow: inset 0 -1px 0 rgba(0,0,0,.15);
+    -webkit-transition: width .6s ease;
+    -o-transition: width .6s ease;
+    transition: width .6s ease;
+}
+
+.MMM-ScreenLogic .progress-bar-success {
+    background-color: #5cb85c;
+}

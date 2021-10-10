@@ -25,6 +25,8 @@
 |`showFreezeMode`|Boolean|Whether you'd like to show a banner when the pool is in freeze mode or not. [added in v1.0.1]|`true`|
 |`showOrp`|Boolean|Whether you'd like to show ORP level or not.|`true`|
 |`showPH`|Boolean|Whether you'd like to show pH level or not.|`true`|
+|`showPHTankLevel`|Boolean|Whether you'd like to show how much pH balancer is in the tank or not. Only functions if `showPH` is also on.|`true`|
+|`pHTankLevelMax`|Boolean|If `showPHTankLevel` is enabled, this is the maximum value that the system returns for a full tank. My systems has this always set to 6, but maybe it differs based on what type of pH balancer you're using.|`6`|
 |`showPoolTemp`|Boolean|Whether you'd like to show pool temperature or not.|`true`|
 |`showSaltLevel`|Boolean|Whether you'd like to show salt level (in PPM) or not.|`true`|
 |`showSaturation`|Boolean|Whether you'd like to show saturation/balance or not.|`true`|
