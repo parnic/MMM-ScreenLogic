@@ -85,7 +85,7 @@ Module.register('MMM-ScreenLogic',{
             if (this.config.showPH) {
                 let dataStr = poolData.status.pH
                 if (this.config.showPHTankLevel) {
-                    let percent = Math.round((poolData.status.pHTank / this.config.pHTankLevelMax) * 100)
+                    let percent = Math.round(((poolData.status.pHTank - 1) / this.config.pHTankLevelMax) * 100)
                     let progBarDiv = `<div class="progress vertical">
                         <div class="progress-bar progress-bar-success" role="progressbar" aria-valuenow="${percent}" aria-valuemin="0" aria-valuemax="100" style="width: ${percent}%;">
                         </div>
