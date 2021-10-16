@@ -88,10 +88,10 @@ Module.register('MMM-ScreenLogic',{
                     let percent = Math.round(((poolData.status.pHTank - 1) / this.config.pHTankLevelMax) * 100)
                     let cls = ''
                     if (this.config.colored) {
-                        if (percent <= 50 && percent > 33) {
-                            cls = 'progress-bar-warning'
-                        } else if (percent <= 33) {
+                        if (percent <= 17) {
                             cls = 'progress-bar-danger'
+                        } else if (percent <= 33) {
+                            cls = 'progress-bar-warning'
                         } else {
                             cls = 'progress-bar-success'
                         }
