@@ -1,75 +1,39 @@
 var NodeHelper = require('node_helper');
 
 module.exports = NodeHelper.create({
-    start: function() {
-        this.setTimer(30 * 60 * 1000);
-    },
-
-    doUpdate: function() {
-        var self = this;
-        getPoolData(this.config, function(poolData) {
-            self.sendSocketNotification('SCREENLOGIC_RESULT', poolData);
-        });
-    },
-
     setCircuit: function(circuitState) {
-        var self = this;
-        setCircuitState(circuitState, function(poolStatus) {
-            self.sendSocketNotification('SCREENLOGIC_CIRCUIT_DONE', {circuitState: circuitState, status: poolStatus});
+        setCircuitState(circuitState, (poolStatus) => {
+            this.sendSocketNotification('SCREENLOGIC_CIRCUIT_DONE', {circuitState: circuitState, status: poolStatus});
         });
     },
 
     setHeatpoint: function(heatpoint) {
-        var self = this;
-        setHeatpointState(heatpoint, function(poolStatus) {
-            self.sendSocketNotification('SCREENLOGIC_HEATPOINT_DONE', {heatpoint: heatpoint, status: poolStatus});
+        setHeatpointState(heatpoint, (poolStatus) => {
+            this.sendSocketNotification('SCREENLOGIC_HEATPOINT_DONE', {heatpoint: heatpoint, status: poolStatus});
         });
     },
 
     setHeatstate: function(heatstate) {
-        var self = this;
-        setHeatstateState(heatstate, function(poolStatus) {
-            self.sendSocketNotification('SCREENLOGIC_HEATSTATE_DONE', {heatstate: heatstate, status: poolStatus});
+        setHeatstateState(heatstate, (poolStatus) => {
+            this.sendSocketNotification('SCREENLOGIC_HEATSTATE_DONE', {heatstate: heatstate, status: poolStatus});
         });
     },
 
     setLightcmd: function(lightCmd) {
-        var self = this;
-        setLights(lightCmd, function(poolStatus) {
-            self.sendSocketNotification('SCREENLOGIC_LIGHTCMD_DONE', {lightCmd: lightCmd, status: poolStatus});
+        setLights(lightCmd, (poolStatus) => {
+            this.sendSocketNotification('SCREENLOGIC_LIGHTCMD_DONE', {lightCmd: lightCmd, status: poolStatus});
         });
-    },
-
-    restartTimer: function() {
-        var interval = this.updateInterval;
-        this.updateInterval = undefined;
-        this.setTimer(interval);
-    },
-
-    setTimer: function(updateInterval) {
-        var update = true;
-        update = typeof this.updateInterval === 'undefined' || this.updateInterval !== updateInterval;
-        this.updateInterval = updateInterval;
-
-        if (update) {
-            if (typeof this.timer !== 'undefined') {
-                clearInterval(this.timer);
-            }
-
-            var self = this;
-            self.timer = setInterval(function() {
-                self.doUpdate();
-            }, self.updateInterval);
-        }
     },
 
     socketNotificationReceived: function(notification, payload) {
         if (notification === 'SCREENLOGIC_CONFIG') {
-            this.config = payload;
-            this.setTimer(this.config.updateInterval);
-        }
-        if (notification === 'SCREENLOGIC_UPDATE') {
-            this.doUpdate();
+            if (!this.config) {
+                this.config = payload;
+                connect((status) => { this.sendSocketNotification('SCREENLOGIC_RESULT', status); });
+            } else if (poolData.status) {
+                this.sendSocketNotification('SCREENLOGIC_RESULT', poolData);
+            }
+            // if we don't have a status yet, assume the initial connection is still in progress and this socket notification will be delivered when setup is done
         }
         if (notification === 'SCREENLOGIC_CIRCUIT') {
             this.setCircuit(payload);
@@ -87,50 +51,69 @@ module.exports = NodeHelper.create({
 });
 
 const ScreenLogic = require('node-screenlogic');
+const Log = require("logger");
+const reconnectDelayMs = 10000;
 var foundUnit;
+var poolData = {};
 
-function getPoolData(config, cb) {
+function connect(cb) {
     if (!foundUnit && typeof config !== 'undefined' && config.serverAddress && config.serverPort) {
+        Log.info(`[MMM-ScreenLogic] connecting directly to configured unit at ${config.serverAddress}:${config.serverPort}`);
         foundUnit = new ScreenLogic.UnitConnection(config.serverPort, config.serverAddress);
     }
 
     if (foundUnit) {
-        populateSystemData(cb);
+        setupUnit(cb);
     } else {
         findServer(cb);
     }
 }
 
 function findServer(cb) {
+    Log.info('[MMM-ScreenLogic] starting search for local units');
     var finder = new ScreenLogic.FindUnits();
-    finder.on('serverFound', function(server) {
+    finder.on('serverFound', (server) => {
         finder.close();
+        Log.info(`[MMM-ScreenLogic] local unit found at ${server.address}:${server.port}`);
 
         foundUnit = new ScreenLogic.UnitConnection(server);
-        populateSystemData(cb);
+        setupUnit(cb);
+    }).on('error', (e) => {
+        Log.error(`[MMM-ScreenLogic] error trying to find a server. scheduling a retry in ${reconnectDelayMs / 1000} seconds`);
+        Log.error(e);
+        foundUnit = null;
+        setTimeout(() => { findServer(cb); }, reconnectDelayMs);
     });
 
     finder.search();
 }
 
-function populateSystemData(cb) {
-    var poolData = {};
+function setupUnit(cb) {
+    Log.info('[MMM-ScreenLogic] initial connection to unit...');
 
-    if (!foundUnit) {
-        cb(poolData);
-        return;
-    }
-
-    foundUnit.once('loggedIn', function() {
+    foundUnit.on('error', (e) => {
+        Log.error(`[MMM-ScreenLogic] error in unit connection. restarting the connection process in ${reconnectDelayMs / 1000} seconds`);
+        Log.error(e);
+        foundUnit = null;
+        setTimeout(() => { connect(); }, reconnectDelayMs);
+    }).on('close', () => {
+        Log.error(`[MMM-ScreenLogic] unit connection closed unexpectedly. restarting the connection process in ${reconnectDelayMs / 1000} seconds`);
+        foundUnit = null;
+        setTimeout(() => { connect(); }, reconnectDelayMs);
+    }).once('loggedIn', () => {
+        Log.info('[MMM-ScreenLogic] logged into unit. getting basic configuration...');
         foundUnit.getControllerConfig();
-    }).once('controllerConfig', function(config) {
+    }).once('controllerConfig', (config) => {
+        Log.info('[MMM-ScreenLogic] configuration received. adding client...');
         poolData.controllerConfig = config;
         poolData.degStr = config.degC ? 'C' : 'F';
+        foundUnit.addClient(1234);
+    }).once('addClient', () => {
+        Log.info('[MMM-ScreenLogic] client added successfully and listening for changes');
         foundUnit.getPoolStatus();
-    }).once('poolStatus', function(status) {
+    }).on('poolStatus', (status) => {
+        Log.info('[MMM-ScreenLogic] received pool status update');
         poolData.status = status;
-
-        foundUnit.close();
         cb(poolData);
     });
 
@@ -143,16 +126,9 @@ function setCircuitState(circuitState, cb) {
         return;
     }
 
-    foundUnit.once('loggedIn', function() {
-        foundUnit.setCircuitState(0, circuitState.id, circuitState.state);
-    }).once('circuitStateChanged', function() {
-        foundUnit.getPoolStatus();
-    }).once('poolStatus', function(status) {
-        foundUnit.close();
-        cb(status);
-    });
-
-    foundUnit.connect();
+    Log.info(`[MMM-ScreenLogic] setting circuit ${circuitState.id} to ${circuitState.state}`);
+    foundUnit.setCircuitState(0, circuitState.id, circuitState.state);
+    foundUnit.getPoolStatus();
 }
 
 function setHeatpointState(heatpoint, cb) {
@@ -161,16 +137,9 @@ function setHeatpointState(heatpoint, cb) {
         return;
     }
 
-    foundUnit.once('loggedIn', function() {
-        foundUnit.setSetPoint(0, heatpoint.body, heatpoint.temperature);
-    }).once('setPointChanged', function() {
-        foundUnit.getPoolStatus();
-    }).once('poolStatus', function(status) {
-        foundUnit.close();
-        cb(status);
-    });
-
-    foundUnit.connect();
+    Log.info(`[MMM-ScreenLogic] setting heatpoint for body ${heatpoint.body} to ${heatpoint.temperature} deg`);
+    foundUnit.setSetPoint(0, heatpoint.body, heatpoint.temperature);
+    foundUnit.getPoolStatus();
 }
 
 function setHeatstateState(heatstate, cb) {
@@ -179,16 +148,9 @@ function setHeatstateState(heatstate, cb) {
         return;
     }
 
-    foundUnit.once('loggedIn', function() {
-        foundUnit.setHeatMode(0, heatstate.body, heatstate.state);
-    }).once('heatModeChanged', function() {
-        foundUnit.getPoolStatus();
-    }).once('poolStatus', function(status) {
-        foundUnit.close();
-        cb(status);
-    });
-
-    foundUnit.connect();
+    Log.info(`[MMM-ScreenLogic] setting heat state for body ${heatstate.body} to ${heatstate.state}`);
+    foundUnit.setHeatMode(0, heatstate.body, heatstate.state);
+    foundUnit.getPoolStatus();
 }
 
 function setLights(lightCmd, cb) {
@@ -197,14 +159,7 @@ function setLights(lightCmd, cb) {
         return;
     }
 
-    foundUnit.once('loggedIn', function() {
-        foundUnit.sendLightCommand(0, lightCmd);
-    }).once('sentLightCommand', function() {
-        foundUnit.getPoolStatus();
-    }).once('poolStatus', function(status) {
-        foundUnit.close();
-        cb(status);
-    });
-
-    foundUnit.connect();
+    Log.info(`[MMM-ScreenLogic] sending light command ${lightCmd}`);
+    foundUnit.sendLightCommand(0, lightCmd);
+    foundUnit.getPoolStatus();
 }

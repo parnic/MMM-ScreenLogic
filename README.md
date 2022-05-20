@@ -31,7 +31,6 @@
 |`showSaltLevel`|Boolean|Whether you'd like to show salt level (in PPM) or not.|`true`|
 |`showSaturation`|Boolean|Whether you'd like to show saturation/balance or not.|`true`|
 |`showSpaTemp`|Boolean|Whether you'd like to show spa temperature or not.|`true`|
-|`updateInterval`|Integer|How frequently, in milliseconds, to update pool data.|`30 * 60 * 1000` (every 30 minutes)|
 
 Here is an example of an entry in config.js
 
@@ -68,7 +67,7 @@ Pull requests are very welcome! If you'd like to see any additional functionalit
 
 This module only works with ScreenLogic controllers on the local network via either a UDP broadcast on 255.255.255.255 or a direct connection if you've specified an address and port in the configuration.
 
-The data is updated every 30 minutes by default (configurable with `updateInterval`).
+The data is updated when the pool equipment sends an update (which typically happens 0-10 seconds after anything changes), and direct updates are requested after any control is toggled/changed.
 
 When toggling a circuit or changing heat mode, sometimes other circuits are affected. For example, some pools share the same pump for the pool and spa, so when the pool is toggled on the spa must be toggled off. Unfortunately the ScreenLogic system doesn't update its internal status at any predictable rate, so the data on the screen can be wrong immediately after toggling a circuit until the next periodic update runs. If you know of a reliable way around this, please open a pull request!
 

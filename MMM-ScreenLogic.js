@@ -17,7 +17,6 @@ Module.register('MMM-ScreenLogic',{
         hotTemp: 90,
         columns: 3,
         contentClass: 'light',
-        updateInterval: 30 * 60 * 1000,
         showPHTankLevel: true,
         pHTankLevelMax: 6
     },
@@ -31,7 +30,6 @@ Module.register('MMM-ScreenLogic',{
         }
 
         this.sendSocketNotification('SCREENLOGIC_CONFIG', this.config);
-        this.sendSocketNotification('SCREENLOGIC_UPDATE');
     },
 
     getStyles: function() {
