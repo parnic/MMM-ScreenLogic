@@ -51,7 +51,7 @@ module.exports = NodeHelper.create({
 });
 
 const ScreenLogic = require('node-screenlogic');
-const Log = require("logger");
+const Log = require('logger');
 const reconnectDelayMs = 10000;
 var foundUnit;
 var poolData = {};
