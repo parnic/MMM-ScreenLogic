@@ -95,11 +95,11 @@ function setupUnit(cb) {
         Log.error(`[MMM-ScreenLogic] error in unit connection. restarting the connection process in ${reconnectDelayMs / 1000} seconds`);
         Log.error(e);
         foundUnit = null;
-        setTimeout(() => { connect(); }, reconnectDelayMs);
+        setTimeout(() => { connect(cb); }, reconnectDelayMs);
     }).on('close', () => {
         Log.error(`[MMM-ScreenLogic] unit connection closed unexpectedly. restarting the connection process in ${reconnectDelayMs / 1000} seconds`);
         foundUnit = null;
-        setTimeout(() => { connect(); }, reconnectDelayMs);
+        setTimeout(() => { connect(cb); }, reconnectDelayMs);
     }).once('loggedIn', () => {
         Log.info('[MMM-ScreenLogic] logged into unit. getting basic configuration...');
         foundUnit.getControllerConfig();
