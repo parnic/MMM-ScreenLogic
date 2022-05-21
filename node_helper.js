@@ -55,6 +55,7 @@ const Log = require('logger');
 const reconnectDelayMs = 10000;
 var foundUnit;
 var poolData = {};
+var refreshTimer;
 
 function connect(cb) {
     if (!foundUnit && typeof config !== 'undefined' && config.serverAddress && config.serverPort) {
@@ -81,11 +82,18 @@ function findServer(cb) {
     }).on('error', (e) => {
         Log.error(`[MMM-ScreenLogic] error trying to find a server. scheduling a retry in ${reconnectDelayMs / 1000} seconds`);
         Log.error(e);
-        foundUnit = null;
+        resetFoundUnit();
         setTimeout(() => { findServer(cb); }, reconnectDelayMs);
     });
 
     finder.search();
+}
+
+function resetFoundUnit() {
+    foundUnit = null;
+    if (refreshTimer) {
+        clearInterval(refreshTimer);
+    }
 }
 
 function setupUnit(cb) {
@@ -94,11 +102,13 @@ function setupUnit(cb) {
     foundUnit.on('error', (e) => {
         Log.error(`[MMM-ScreenLogic] error in unit connection. restarting the connection process in ${reconnectDelayMs / 1000} seconds`);
         Log.error(e);
-        foundUnit = null;
+
+        resetFoundUnit();
         setTimeout(() => { connect(cb); }, reconnectDelayMs);
     }).on('close', () => {
         Log.error(`[MMM-ScreenLogic] unit connection closed unexpectedly. restarting the connection process in ${reconnectDelayMs / 1000} seconds`);
-        foundUnit = null;
+
+        resetFoundUnit();
         setTimeout(() => { connect(cb); }, reconnectDelayMs);
     }).once('loggedIn', () => {
         Log.info('[MMM-ScreenLogic] logged into unit. getting basic configuration...');
@@ -111,6 +121,8 @@ function setupUnit(cb) {
     }).once('addClient', () => {
         Log.info('[MMM-ScreenLogic] client added successfully and listening for changes');
         foundUnit.getPoolStatus();
+        // connection seems to time out every 10 minutes without some sort of request made
+        refreshTimer = setInterval(() => { foundUnit.getPoolStatus(); }, 5 * 60 * 1000);
     }).on('poolStatus', (status) => {
         Log.info('[MMM-ScreenLogic] received pool status update');
         poolData.status = status;
