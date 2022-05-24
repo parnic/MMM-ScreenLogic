@@ -5,12 +5,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased] - 2022-05-20
+## [1.3.0] - 2022-05-24
 
 ### Changed
 
 - Switched to a push-based model where the module is told immediately when something in the pool equipment changes rather than polling for an update every 30 minutes.
 - Improved support for multiple clients connecting to the same Magic Mirror server. Additional clients will no longer put additional strain on the pool equipment by triggering more connections and requests.
+- Changed thresholds for causing the pH tank level to show low and medium colors.
+
+### Fixed
+
+- Fixed a few different ways that the module could stop requesting or processing updates from the pool equipment. It should be much more resilient against failure now.
 
 ## [1.2.0] - 2021-10-13
 
