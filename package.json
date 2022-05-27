@@ -7,7 +7,7 @@
   "repository": "https://github.com/parnic/MMM-ScreenLogic.git",
   "license": "MIT",
   "dependencies": {
-    "node-screenlogic": "^1.10.0"
+    "node-screenlogic": "parnic/node-screenlogic"
   },
   "devDependencies": {
     "eslint": "^8.0.1"

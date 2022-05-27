@@ -122,7 +122,7 @@ function setupUnit(cb) {
         Log.info('[MMM-ScreenLogic] client added successfully and listening for changes');
         foundUnit.getPoolStatus();
         // connection seems to time out every 10 minutes without some sort of request made
-        refreshTimer = setInterval(() => { foundUnit.getPoolStatus(); }, 5 * 60 * 1000);
+        refreshTimer = setInterval(() => { foundUnit.pingServer(); }, 1 * 60 * 1000);
     }).on('poolStatus', (status) => {
         Log.info('[MMM-ScreenLogic] received pool status update');
         poolData.status = status;
