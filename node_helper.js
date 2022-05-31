@@ -52,10 +52,12 @@ module.exports = NodeHelper.create({
 
 const ScreenLogic = require('node-screenlogic');
 const Log = require('logger');
-const reconnectDelayMs = 10000;
+const reconnectDelayMs = 10 * 1000;
+const unitFinderTimeoutMs = 5 * 1000;
 var foundUnit;
 var poolData = {};
 var refreshTimer;
+var unitFinderRetry;
 
 function connect(cb) {
     if (!foundUnit && typeof config !== 'undefined' && config.serverAddress && config.serverPort) {
@@ -79,6 +81,9 @@ function findServer(cb) {
 
         foundUnit = new ScreenLogic.UnitConnection(server);
         setupUnit(cb);
+
+        clearTimeout(unitFinderRetry);
+        unitFinderRetry = null;
     }).on('error', (e) => {
         Log.error(`[MMM-ScreenLogic] error trying to find a server. scheduling a retry in ${reconnectDelayMs / 1000} seconds`);
         Log.error(e);
@@ -87,12 +92,21 @@ function findServer(cb) {
     });
 
     finder.search();
+    unitFinderRetry = setInterval(() => {
+            Log.info(`[MMM-SceenLogic] didn't find any units within ${unitFinderTimeoutMs / 1000} seconds, trying again...`);
+            finder.search();
+        }, unitFinderTimeoutMs);
 }
 
 function resetFoundUnit() {
     foundUnit = null;
     if (refreshTimer) {
         clearInterval(refreshTimer);
+        refreshTimer = null;
+    }
+    if (unitFinderRetry) {
+        clearTimeout(unitFinderRetry);
+        unitFinderRetry = null;
     }
 }
 
