@@ -105,7 +105,7 @@ function resetFoundUnit() {
         refreshTimer = null;
     }
     if (unitFinderRetry) {
-        clearTimeout(unitFinderRetry);
+        clearInterval(unitFinderRetry);
         unitFinderRetry = null;
     }
 }
