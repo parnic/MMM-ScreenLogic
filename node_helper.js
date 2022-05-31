@@ -93,9 +93,9 @@ function findServer(cb) {
 
     finder.search();
     unitFinderRetry = setInterval(() => {
-            Log.info(`[MMM-SceenLogic] didn't find any units within ${unitFinderTimeoutMs / 1000} seconds, trying again...`);
-            finder.search();
-        }, unitFinderTimeoutMs);
+        Log.info(`[MMM-SceenLogic] didn't find any units within ${unitFinderTimeoutMs / 1000} seconds, trying again...`);
+        finder.search();
+    }, unitFinderTimeoutMs);
 }
 
 function resetFoundUnit() {
