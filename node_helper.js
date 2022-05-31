@@ -58,6 +58,7 @@ var foundUnit;
 var poolData = {};
 var refreshTimer;
 var unitFinderRetry;
+var unitReconnectTimer;
 
 function connect(cb) {
     if (!foundUnit && typeof config !== 'undefined' && config.serverAddress && config.serverPort) {
@@ -108,6 +109,10 @@ function resetFoundUnit() {
         clearInterval(unitFinderRetry);
         unitFinderRetry = null;
     }
+    if (unitReconnectTimer) {
+        clearTimeout(unitReconnectTimer);
+        unitReconnectTimer = null;
+    }
 }
 
 function setupUnit(cb) {
@@ -118,12 +123,12 @@ function setupUnit(cb) {
         Log.error(e);
 
         resetFoundUnit();
-        setTimeout(() => { connect(cb); }, reconnectDelayMs);
+        unitReconnectTimer = setTimeout(() => { connect(cb); }, reconnectDelayMs);
     }).on('close', () => {
         Log.error(`[MMM-ScreenLogic] unit connection closed unexpectedly. restarting the connection process in ${reconnectDelayMs / 1000} seconds`);
 
         resetFoundUnit();
-        setTimeout(() => { connect(cb); }, reconnectDelayMs);
+        unitReconnectTimer = setTimeout(() => { connect(cb); }, reconnectDelayMs);
     }).once('loggedIn', () => {
         Log.info('[MMM-ScreenLogic] logged into unit. getting basic configuration...');
         foundUnit.getControllerConfig();
