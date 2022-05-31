@@ -83,7 +83,7 @@ function findServer(cb) {
         foundUnit = new ScreenLogic.UnitConnection(server);
         setupUnit(cb);
 
-        clearTimeout(unitFinderRetry);
+        clearInterval(unitFinderRetry);
         unitFinderRetry = null;
     }).on('error', (e) => {
         Log.error(`[MMM-ScreenLogic] error trying to find a server. scheduling a retry in ${reconnectDelayMs / 1000} seconds`);
