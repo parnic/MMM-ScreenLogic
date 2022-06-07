@@ -39,8 +39,8 @@ Module.register('MMM-ScreenLogic',{
     getDom: function() {
         if (!poolData.status) {
             let wrapper = document.createElement('div');
-            wrapper.innerHTML = 'Loading...';
-            wrapper.className += 'dimmed light small';
+            wrapper.innerHTML = 'Loading ScreenLogic...';
+            wrapper.className += 'dimmed light small text-center';
 
             return wrapper;
         } else {

@@ -137,3 +137,7 @@
 .MMM-ScreenLogic .progress-bar-danger {
     background-color: #dc3545;
 }
+
+.MMM-ScreenLogic .text-center {
+    text-align: center;
+}
