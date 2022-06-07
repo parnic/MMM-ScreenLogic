@@ -44,11 +44,25 @@ Module.register('MMM-ScreenLogic',{
 
             return wrapper;
         } else {
+            let outermost = document.createElement('div');
+            outermost.classList.add('container');
+
+            let reconnectDiv = document.createElement('div');
+            reconnectDiv.classList.add('overlay', 'reconnecting', 'd-none');
+
+            let reconnectLabel = document.createElement('div');
+            reconnectLabel.classList.add('margin-auto', 'bg-blur');
+            reconnectLabel.innerHTML = 'Reconnecting...';
+            reconnectDiv.appendChild(reconnectLabel);
+
             let table = document.createElement('table');
-            table.className = 'small';
+            table.classList.add('base-content', 'small');
             if (this.config.colored) {
-                table.className += ' colored';
+                table.classList.add('colored');
             }
+
+            outermost.appendChild(reconnectDiv);
+            outermost.appendChild(table);
 
             let contents = [];
 
@@ -240,7 +254,7 @@ Module.register('MMM-ScreenLogic',{
                 contentRow.appendChild(contentCell);
             }
 
-            return table;
+            return outermost;
         }
     },
 
@@ -248,14 +262,31 @@ Module.register('MMM-ScreenLogic',{
         if (notification === 'SCREENLOGIC_RESULT') {
             poolData = payload;
             this.updateDom();
+            showReconnectOverlay(false);
         } else if (notification === 'SCREENLOGIC_CIRCUIT_DONE'
 			|| notification === 'SCREENLOGIC_HEATSTATE_DONE'
 			|| notification === 'SCREENLOGIC_HEATPOINT_DONE') {
             poolData.status = payload.status;
             this.updateDom();
+            showReconnectOverlay(false);
+        } else if (notification === 'SCREENLOGIC_RECONNECTING') {
+            showReconnectOverlay(true);
         }
     },
 });
+
+function showReconnectOverlay(show) {
+    let element = document.querySelector('.MMM-ScreenLogic .reconnecting');
+    if (!element || !element.classList) {
+        return;
+    }
+
+    if (show) {
+        element.classList.remove('d-none');
+    } else {
+        element.classList.add('d-none');
+    }
+}
 
 const SPA_CIRCUIT_ID = 500;
 const POOL_CIRCUIT_ID = 505;

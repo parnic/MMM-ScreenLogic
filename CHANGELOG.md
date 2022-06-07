@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Added 'reconnecting' overlay message when the connection to the pool equipment was previously established, but is now trying to be re-established.
+
 ### Changed
 
 - Added retries for the unit finder so that a temporary loss of connection does not cause the module to get stuck with outdated, non-updating pool data.

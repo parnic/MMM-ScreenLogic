@@ -25,11 +25,19 @@ module.exports = NodeHelper.create({
         });
     },
 
+    notifyReconnecting: function() {
+        this.sendSocketNotification('SCREENLOGIC_RECONNECTING');
+    },
+
     socketNotificationReceived: function(notification, payload) {
         if (notification === 'SCREENLOGIC_CONFIG') {
             if (!this.config) {
                 this.config = payload;
-                connect((status) => { this.sendSocketNotification('SCREENLOGIC_RESULT', status); });
+                connect((status) => {
+                    this.sendSocketNotification('SCREENLOGIC_RESULT', status);
+                }, () => {
+                    this.notifyReconnecting();
+                });
             } else if (poolData.status) {
                 this.sendSocketNotification('SCREENLOGIC_RESULT', poolData);
             }
@@ -60,20 +68,20 @@ var refreshTimer;
 var unitFinderRetry;
 var unitReconnectTimer;
 
-function connect(cb) {
+function connect(cb, reconnectCb) {
     if (!foundUnit && typeof config !== 'undefined' && config.serverAddress && config.serverPort) {
         Log.info(`[MMM-ScreenLogic] connecting directly to configured unit at ${config.serverAddress}:${config.serverPort}`);
         foundUnit = new ScreenLogic.UnitConnection(config.serverPort, config.serverAddress);
     }
 
     if (foundUnit) {
-        setupUnit(cb);
+        setupUnit(cb, reconnectCb);
     } else {
-        findServer(cb);
+        findServer(cb, reconnectCb);
     }
 }
 
-function findServer(cb) {
+function findServer(cb, reconnectCb) {
     Log.info('[MMM-ScreenLogic] starting search for local units');
     var finder = new ScreenLogic.FindUnits();
     finder.on('serverFound', (server) => {
@@ -81,7 +89,7 @@ function findServer(cb) {
         Log.info(`[MMM-ScreenLogic] local unit found at ${server.address}:${server.port}`);
 
         foundUnit = new ScreenLogic.UnitConnection(server);
-        setupUnit(cb);
+        setupUnit(cb, reconnectCb);
 
         clearInterval(unitFinderRetry);
         unitFinderRetry = null;
@@ -115,20 +123,22 @@ function resetFoundUnit() {
     }
 }
 
-function setupUnit(cb) {
+function setupUnit(cb, reconnectCb) {
     Log.info('[MMM-ScreenLogic] initial connection to unit...');
 
     foundUnit.on('error', (e) => {
         Log.error(`[MMM-ScreenLogic] error in unit connection. restarting the connection process in ${reconnectDelayMs / 1000} seconds`);
         Log.error(e);
 
+        reconnectCb();
         resetFoundUnit();
-        unitReconnectTimer = setTimeout(() => { connect(cb); }, reconnectDelayMs);
+        unitReconnectTimer = setTimeout(() => { connect(cb, reconnectCb); }, reconnectDelayMs);
     }).on('close', () => {
         Log.error(`[MMM-ScreenLogic] unit connection closed unexpectedly. restarting the connection process in ${reconnectDelayMs / 1000} seconds`);
 
+        reconnectCb();
         resetFoundUnit();
-        unitReconnectTimer = setTimeout(() => { connect(cb); }, reconnectDelayMs);
+        unitReconnectTimer = setTimeout(() => { connect(cb, reconnectCb); }, reconnectDelayMs);
     }).once('loggedIn', () => {
         Log.info('[MMM-ScreenLogic] logged into unit. getting basic configuration...');
         foundUnit.getControllerConfig();
