@@ -14,6 +14,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - Added retries for the unit finder so that a temporary loss of connection does not cause the module to get stuck with outdated, non-updating pool data.
+- Improved initial "Loading" message to make it clear that it belongs to the ScreenLogic module.
+- Reduced load on the pool equipment for the periodic keep-alive messages that the module sends by using a Ping message instead of requesting a full Status update.
 
 ## [1.3.0] - 2022-05-24
 
